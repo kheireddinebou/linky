@@ -11,7 +11,6 @@ import urlRoutes from "./routes/url/url.routes.ts";
 
 import redirectsRoutes from "./routes/redirects/redirect.routes.ts";
 
-
 const app = express();
 
 app.use(cookieParser());
@@ -33,7 +32,6 @@ app.use("/api/v1/url", urlRoutes);
 
 app.use("/", redirectsRoutes);
 
-
 const startServer = async () => {
   await createTables();
 
@@ -43,3 +41,4 @@ const startServer = async () => {
 };
 
 startServer();
+
