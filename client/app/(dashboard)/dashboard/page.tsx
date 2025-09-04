@@ -89,9 +89,9 @@ const Dashboard = () => {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <h1 className="font-heading text-3xl font-bold mb-2">
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold mb-2">
             Welcome back,{" "}
-            <span className="text-gradient">
+            <span className="text-gradient max-w-ful">
               {user?.first_name || user?.username}
             </span>
             ! ✨
@@ -134,6 +134,7 @@ const Dashboard = () => {
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* URL Form */}
+
           <div className="lg:col-span-1">
             <URLForm onUrlCreated={handleUrlCreated} initialUrl={initialUrl} />
           </div>

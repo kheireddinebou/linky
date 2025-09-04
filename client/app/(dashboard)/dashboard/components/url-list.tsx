@@ -127,7 +127,7 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 flex-1 max-w-full">
       <h3 className="font-heading text-xl font-semibold">
         Your Shortened URLs
       </h3>
@@ -141,7 +141,7 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card className="shadow-card hover:shadow-glow transition-all duration-300 border-primary/10">
+            <Card className="shadow-card hover:shadow-glow transition-all duration-300 border-primary/10 max-w-full">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -163,8 +163,8 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
-                  <code className="flex-1 text-primary font-mono text-sm">
+                <div className="flex items-center gap-2 p-3 max-sm:p-2 flex-wrap rounded-lg bg-primary/5 border border-primary/20">
+                  <code className="text-primary font-mono text-sm max-sm:text-xs">
                     {shortUrl(url.short_code)}
                   </code>
                   <Button
@@ -176,7 +176,7 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="text-sm text-muted-foreground">
                     Created {format(new Date(url.created_at), "MMM d, yyyy")}
                   </span>
