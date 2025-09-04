@@ -7,10 +7,12 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  hasHydrated: boolean;
   setUser: (user: User) => void;
   setToken: (token: string) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -19,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: Cookies.get("token") || null,
       isAuthenticated: false,
+      hasHydrated: false,
       isLoading: false,
       setUser: user => set({ user, isAuthenticated: true }),
       setToken: token => {
@@ -30,6 +33,9 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, isAuthenticated: false });
       },
       setLoading: isLoading => set({ isLoading }),
+      setHasHydrated: (state: boolean) => {
+        set({ hasHydrated: state });
+      },
     }),
     {
       name: "linky",
@@ -37,6 +43,9 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => state => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

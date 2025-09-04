@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
+import RoutesProtection from "./routes-protection";
 
 const queryClient = new QueryClient();
 
@@ -11,11 +12,11 @@ const Providers = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="dark">
+        <RoutesProtection>
           {/* Force dark mode */}
           <Sonner />
           {children}
-        </div>
+        </RoutesProtection>
       </TooltipProvider>
     </QueryClientProvider>
   );
