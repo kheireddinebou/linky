@@ -21,7 +21,7 @@ const Header = () => {
         <nav className="flex items-center space-x-4">
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground max-sm:hidden">
                 Welcome, {user?.first_name || user?.username}
               </span>
               <Button

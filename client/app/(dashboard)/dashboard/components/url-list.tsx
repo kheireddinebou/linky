@@ -44,7 +44,9 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
-  const shortUrl = (shortCode: string) => `http://localhost:8000/${shortCode}`;
+  const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+
+  const shortUrl = (shortCode: string) => `${SERVER_URL}/${shortCode}`;
 
   const copyToClipboard = async (url: string) => {
     try {

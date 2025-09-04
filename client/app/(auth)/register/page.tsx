@@ -19,14 +19,11 @@ import { Zap, Mail, Lock, User, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import * as yup from "yup";
 import { useRouter } from "next/navigation";
-import { googleAuth, register } from "@/api/auth";
+import { register } from "@/api/auth";
 import Link from "next/link";
+import useGoogleAuth from "@/hooks/useGoogleAuth";
 
 const registerSchema = yup.object({
-  username: yup
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .required("Username is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   password: yup
     .string()
@@ -54,6 +51,7 @@ const Register = () => {
 
   const { setUser, setToken } = useAuthStore();
   const router = useRouter();
+  const { handleConnectWithGoogle } = useGoogleAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,16 +68,10 @@ const Register = () => {
       // API call
       const response = await register(apiData);
 
-      if (response.success && response.data) {
-        setUser(response.data.user);
-        setToken(response.data.token);
-        toast.success(
-          "Account created successfully! Welcome to URL Wizardry ✨"
-        );
-        router.push("/dashboard");
-      } else {
-        toast.error(response.message || "Registration failed");
-      }
+      setUser(response.user);
+      setToken(response.token);
+      toast.success("Account created successfully! Welcome to URL Wizardry ✨");
+      router.push("/dashboard");
     } catch (error: any) {
       if (error.inner) {
         // Validation errors
@@ -98,10 +90,6 @@ const Register = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleSignUp = () => {
-    googleAuth();
   };
 
   return (
@@ -173,30 +161,6 @@ const Register = () => {
                       }
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="username" className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Username *
-                  </Label>
-                  <Input
-                    id="username"
-                    placeholder="johndoe"
-                    value={formData.username}
-                    onChange={e =>
-                      setFormData(prev => ({
-                        ...prev,
-                        username: e.target.value,
-                      }))
-                    }
-                    className={errors.username ? "border-destructive" : ""}
-                  />
-                  {errors.username && (
-                    <p className="text-sm text-destructive">
-                      {errors.username}
-                    </p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -300,7 +264,7 @@ const Register = () => {
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={handleGoogleSignUp}
+                  onClick={handleConnectWithGoogle}
                   disabled={isLoading}
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">

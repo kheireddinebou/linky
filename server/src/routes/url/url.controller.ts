@@ -42,7 +42,7 @@ export const httpGetUrls = async (req: AuthRequest, res: Response) => {
       `SELECT * FROM urls WHERE user_id=$1 ORDER BY created_at DESC`,
       [userId]
     );
-    res.json(result.rows);
+    res.status(200).json(result.rows);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -62,7 +62,7 @@ export const httpGetUrl = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Not found" });
     }
 
-    res.json(result.rows[0]);
+    res.status(200).json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -126,7 +126,7 @@ export const httpUpdateUrl = async (req: AuthRequest, res: Response) => {
       await redis.set(url.short_code, url.original_url);
     }
 
-    res.json(url);
+    res.status(200).json(url);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -156,7 +156,7 @@ export const httpDeleteUrl = async (req: AuthRequest, res: Response) => {
     // Remove from Redis
     await redis.del(url.short_code);
 
-    res.json({ message: "Deleted successfully" });
+    res.status(200).json({ message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

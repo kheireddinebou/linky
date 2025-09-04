@@ -1,11 +1,13 @@
+"use client";
+
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactElement } from "react";
+import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
 
-const Providers = ({ children }: { children: ReactElement }) => {
+const Providers = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

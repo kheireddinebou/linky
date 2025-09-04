@@ -1,6 +1,6 @@
 "use client";
 
-import { googleAuth, login } from "@/api/auth";
+import { login } from "@/api/auth";
 import Header from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useGoogleAuth from "@/hooks/useGoogleAuth";
 import { useAuthStore } from "@/store/auth";
 import { motion } from "framer-motion";
 import { Lock, Mail, Zap } from "lucide-react";
@@ -35,6 +36,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { handleConnectWithGoogle } = useGoogleAuth();
+
   const { setUser, setToken } = useAuthStore();
   const router = useRouter();
 
@@ -50,14 +53,10 @@ const Login = () => {
       // API call
       const response = await login(formData);
 
-      if (response.success && response.data) {
-        setUser(response.data.user);
-        setToken(response.data.token);
-        toast.success("Welcome back! Logged in successfully");
-        router.push("/dashboard");
-      } else {
-        toast.error(response.message || "Login failed");
-      }
+      setUser(response.user);
+      setToken(response.token);
+      toast.success("Welcome back! Logged in successfully");
+      router.push("/dashboard");
     } catch (error: any) {
       if (error.inner) {
         // Validation errors
@@ -185,7 +184,7 @@ const Login = () => {
                   type="button"
                   variant="outline"
                   className="w-full"
-                  onClick={() => googleAuth()}
+                  onClick={handleConnectWithGoogle}
                   disabled={isLoading}
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">

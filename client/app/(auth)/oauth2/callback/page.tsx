@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchCurrentUser } from "@/api/user";
 import { useAuthStore } from "@/store/auth";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -16,27 +17,31 @@ const OAuth2Callback = () => {
     const user = searchParams.get("user");
     const error = searchParams.get("error");
 
-    if (error) {
-      toast.error("Authentication failed: " + error);
-      router.push("/login");
-      return;
-    }
+    const handleAuthenticateUser = async () => {
+      if (error) {
+        toast.error("Authentication failed: " + error);
+        router.push("/login");
+        return;
+      }
 
-    if (token && user) {
-      try {
-        const userData = JSON.parse(decodeURIComponent(user));
-        setUser(userData);
-        setToken(token);
-        toast.success("Successfully signed in with Google! ✨");
-        router.push("/dashboard");
-      } catch (error) {
-        toast.error("Failed to process authentication data");
+      if (token) {
+        try {
+          setToken(token);
+          const userData = await fetchCurrentUser();
+          setUser(userData);
+          toast.success("Successfully signed in with Google! ✨");
+          router.push("/dashboard");
+        } catch (error) {
+          toast.error("Failed to process authentication data");
+          router.push("/login");
+        }
+      } else {
+        toast.error("Invalid authentication response");
         router.push("/login");
       }
-    } else {
-      toast.error("Invalid authentication response");
-      router.push("/login");
-    }
+    };
+
+    handleAuthenticateUser();
   }, [searchParams, router, setUser, setToken]);
 
   return (

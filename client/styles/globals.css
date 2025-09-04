@@ -166,6 +166,8 @@
   --animate-bounce: var(--animation-bounce);
   --animate-pulse: var(--animation-pulse);
   --animate-float: var(--animation-float);
+
+  --container-padding: 8px;
 }
 
 /* ----------------- Tailwind base layer ----------------- */
@@ -334,5 +336,11 @@
 @layer utilities {
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+}
+
+@media (max-width: 639px) {
+  .container {
+    @apply px-3;
   }
 }
