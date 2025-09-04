@@ -163,7 +163,7 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="flex items-center gap-2 p-3 max-sm:p-2 flex-wrap rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex flex-1 w-full justify-between items-center gap-2 p-3 max-sm:p-2 flex-wrap rounded-lg bg-primary/5 border border-primary/20">
                   <code className="text-primary font-mono text-sm max-sm:text-xs">
                     {shortUrl(url.short_code)}
                   </code>
