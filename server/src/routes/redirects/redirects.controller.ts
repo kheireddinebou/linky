@@ -13,8 +13,6 @@ export const httpRedirectToOriginalUrl = async (
     // Try Redis first
     let originalUrl = await redis.get(shortCode);
 
-    console.log("originalUrl", originalUrl);
-
     if (!originalUrl) {
       // Fallback: DB lookup
       const result = await pool.query(

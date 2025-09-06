@@ -3,7 +3,7 @@ import { publicRequest } from ".";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function register(data: any) {
+export async function registerNewUser(data: any) {
   const response: AxiosResponse = await publicRequest.post(
     "/auth/register",
     data
