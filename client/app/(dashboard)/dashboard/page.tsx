@@ -2,58 +2,34 @@
 
 import { getUrls } from "@/api/url";
 import Header from "@/components/layout/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useAuthStore } from "@/store/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@/hooks/useQuery";
 import { motion } from "framer-motion";
 import { BarChart3, Link2, Users, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import StateCard, { State } from "./components/state-card";
 import URLForm from "./components/url-form";
 import URLList from "./components/url-list";
-import { useSearchParams } from "next/navigation";
 
 const Dashboard = () => {
   const { user } = useAuthStore();
   const searchParams = useSearchParams();
-  const [urls, setUrls] = useState<URLItem[]>([]);
 
   // Get URL from navigation state if coming from home page
   const initialUrl = searchParams.get("urlToShorten") || "";
 
-  const {
-    data: urlsData,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: urls, isLoading } = useQuery({
     queryKey: ["urls"],
     queryFn: getUrls,
-    retry: false,
   });
 
-  useEffect(() => {
-    setUrls(urlsData || []);
-  }, [urlsData]);
-
-  const handleUrlCreated = (newUrl: URLItem) => {
-    setUrls(prev => [newUrl, ...prev]);
-  };
-
-  const handleUrlUpdated = (updatedUrl: URLItem) => {
-    setUrls(prev =>
-      prev.map(url => (url.id === updatedUrl.id ? updatedUrl : url))
-    );
-  };
-
-  const handleUrlDeleted = (deletedId: number) => {
-    setUrls(prev => prev.filter(url => url.id !== deletedId));
-  };
-
-  const totalClicks = urls.reduce((sum, url) => sum + url.clicks, 0);
+  const totalClicks = urls?.reduce((sum, url) => sum + url.clicks, 0) || 0;
 
   const stats = [
     {
       title: "Total Links",
-      value: urls.length.toString(),
+      value: urls?.length.toString(),
       icon: Link2,
       description: "URLs shortened",
     },
@@ -71,7 +47,10 @@ const Dashboard = () => {
     },
     {
       title: "Engagement",
-      value: urls.length > 0 ? (totalClicks / urls.length).toFixed(1) : "0",
+      value:
+        (urls?.length ?? 0) > 0
+          ? (totalClicks / (urls?.length ?? 0)).toFixed(1)
+          : "0",
       icon: Users,
       description: "Avg clicks per link",
     },
@@ -109,34 +88,15 @@ const Dashboard = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8"
         >
-          {stats.map((stat, index) => (
-            <Card
-              key={stat.title}
-              className="shadow-card hover:shadow-glow transition-all duration-300 border-primary/10"
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-heading">
-                  {stat.value}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Card>
+          {stats.map(state => (
+            <StateCard state={state} key={state.title} />
           ))}
         </motion.div>
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* URL Form */}
-
           <div className="lg:col-span-1">
-            <URLForm onUrlCreated={handleUrlCreated} initialUrl={initialUrl} />
+            <URLForm initialUrl={initialUrl} />
           </div>
 
           {/* URL List */}
@@ -149,11 +109,7 @@ const Dashboard = () => {
                 </div>
               </Card>
             ) : (
-              <URLList
-                urls={urls}
-                onUrlUpdated={handleUrlUpdated}
-                onUrlDeleted={handleUrlDeleted}
-              />
+              <URLList urls={urls ?? []} />
             )}
           </div>
         </div>

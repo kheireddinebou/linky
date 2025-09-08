@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { createUrl } from "@/api/url";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -10,61 +7,46 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Zap, Link2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useMutation } from "@/hooks/useMutation";
+import { queryClient } from "@/lib/queryClient";
+import { urlSchema } from "@/schema/url";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { motion } from "framer-motion";
+import { Link2, Zap } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as yup from "yup";
-import { createUrl } from "@/api/url";
-
-const urlSchema = yup.object({
-  original_url: yup
-    .string()
-    .url("Please enter a valid URL")
-    .required("URL is required"),
-  title: yup.string().optional(),
-});
 
 interface URLFormProps {
-  onUrlCreated: (url: URLItem) => void;
   initialUrl?: string;
 }
 
-const URLForm = ({ onUrlCreated, initialUrl = "" }: URLFormProps) => {
-  const [formData, setFormData] = useState({
-    original_url: initialUrl,
-    title: "",
+type FormValues = typeof urlSchema.__outputType;
+
+const URLForm = ({ initialUrl = "" }: URLFormProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(urlSchema),
+    defaultValues: {
+      original_url: initialUrl,
+    },
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
+  const { mutate: mutateAddUrl, isPending } = useMutation({
+    mutationFn: handleAddUrl,
+  });
 
-    try {
-      // Validate form
-      await urlSchema.validate(formData, { abortEarly: false });
-      // API call
-      const response = await createUrl(formData);
-      toast.success("✨ URL shortened successfully!");
-      onUrlCreated(response);
-      setFormData({ original_url: "", title: "" });
-    } catch (error: any) {
-      if (error.inner) {
-        // Validation errors
-        const validationErrors: Record<string, string> = {};
-        error.inner.forEach((err: any) => {
-          validationErrors[err.path] = err.message;
-        });
-        setErrors(validationErrors);
-      } else {
-        // API errors
-        toast.error(error.response?.data?.message || "Failed to shorten URL");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  async function handleAddUrl(values: FormValues) {
+    await createUrl(values);
+    toast.success("✨ URL shortened successfully!");
+    queryClient.invalidateQueries({ queryKey: ["urls"] });
+    reset();
+  }
 
   return (
     <motion.div
@@ -84,27 +66,19 @@ const URLForm = ({ onUrlCreated, initialUrl = "" }: URLFormProps) => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={handleSubmit(v => mutateAddUrl(v))}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="original_url">URL to Shorten *</Label>
               <Input
                 id="original_url"
                 type="url"
                 placeholder="https://example.com/very/long/url/that/needs/shortening"
-                value={formData.original_url}
-                onChange={e =>
-                  setFormData(prev => ({
-                    ...prev,
-                    original_url: e.target.value,
-                  }))
-                }
-                className={errors.original_url ? "border-destructive" : ""}
+                error={errors.original_url}
+                {...register("original_url")}
               />
-              {errors.original_url && (
-                <p className="text-sm text-destructive">
-                  {errors.original_url}
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -112,25 +86,19 @@ const URLForm = ({ onUrlCreated, initialUrl = "" }: URLFormProps) => {
               <Input
                 id="title"
                 placeholder="Give your link a memorable title"
-                value={formData.title}
-                onChange={e =>
-                  setFormData(prev => ({ ...prev, title: e.target.value }))
-                }
-                className={errors.title ? "border-destructive" : ""}
+                error={errors.title}
+                {...register("title")}
               />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title}</p>
-              )}
             </div>
 
             <Button
               type="submit"
               variant="magic"
-              disabled={isLoading}
+              disabled={isPending}
               className="w-full"
             >
               <Zap className="mr-2 h-4 w-4" />
-              {isLoading ? "Shortening..." : "Shorten URL"}
+              {isPending ? "Shortening..." : "Shorten URL"}
             </Button>
           </form>
         </CardContent>

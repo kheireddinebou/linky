@@ -31,14 +31,13 @@ import { toast } from "sonner";
 import QRCode from "qrcode";
 import { format } from "date-fns";
 import { deleteUrl, updateUrl } from "@/api/url";
+import { queryClient } from "@/lib/queryClient";
 
 interface URLListProps {
   urls: URLItem[];
-  onUrlUpdated: (updatedUrl: URLItem) => void;
-  onUrlDeleted: (deletedId: number) => void;
 }
 
-const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
+const URLList = ({ urls }: URLListProps) => {
   const [editingUrl, setEditingUrl] = useState<URLItem | null>(null);
   const [editData, setEditData] = useState({ title: "", original_url: "" });
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
@@ -85,8 +84,8 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
     setIsLoading({ [`update-${editingUrl.id}`]: true });
 
     try {
-      const response = await updateUrl(editingUrl.id.toString(), editData);
-      onUrlUpdated(response);
+      await updateUrl(editingUrl.id.toString(), editData);
+      queryClient.invalidateQueries({ queryKey: ["urls"] });
       setEditingUrl(null);
       toast.success("URL updated successfully! ✨");
     } catch (error) {
@@ -100,8 +99,8 @@ const URLList = ({ urls, onUrlUpdated, onUrlDeleted }: URLListProps) => {
     setIsLoading({ [`delete-${id}`]: true });
 
     try {
-      const response = await deleteUrl(id.toString());
-      onUrlDeleted(id);
+      await deleteUrl(id.toString());
+      queryClient.invalidateQueries({ queryKey: ["urls"] });
       toast.success("URL deleted successfully");
     } catch (error) {
       toast.error("Failed to delete URL");
