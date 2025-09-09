@@ -1,7 +1,11 @@
 "use client";
 
 import { useAuthStore } from "@/store/auth";
-import { useRouter, useSelectedLayoutSegment } from "next/navigation";
+import {
+  useRouter,
+  useSelectedLayoutSegment,
+  usePathname,
+} from "next/navigation";
 import { useEffect } from "react";
 
 interface RoutesProtectionProps {
@@ -12,6 +16,7 @@ const RoutesProtection = ({ children }: RoutesProtectionProps) => {
   const { isAuthenticated, hasHydrated } = useAuthStore();
   const router = useRouter();
   const segment = useSelectedLayoutSegment();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -20,7 +25,7 @@ const RoutesProtection = ({ children }: RoutesProtectionProps) => {
       return router.replace("/login");
     }
 
-    if (isAuthenticated && segment === "(auth)") {
+    if (isAuthenticated && (segment === "(auth)" || pathname === "/")) {
       return router.replace("/dashboard");
     }
   }, [isAuthenticated, hasHydrated, router]);
