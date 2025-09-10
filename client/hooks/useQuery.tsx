@@ -8,6 +8,7 @@ import { AxiosError } from "axios";
 
 interface ErrorResponse {
   message?: string;
+  error?: string;
 }
 
 type FetchOptions<
@@ -33,6 +34,7 @@ export const useQuery = <
     const errorMessage =
       options.toastErrorMessage ??
       axiosError?.response?.data?.message ??
+      axiosError?.response?.data?.error ??
       "Something went wrong";
     setTimeout(() => toast.error(errorMessage), 0);
   };

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 interface ErrorResponse {
   message?: string;
+  error?: string;
 }
 
 type ToastErrorOptions = Parameters<typeof toast.error>[1];
@@ -47,6 +48,7 @@ export const useMutation = <
       const errorMessage =
         options.toastErrorMessage ??
         axiosError?.response?.data?.message ??
+        axiosError?.response?.data?.error ??
         "Something went wrong";
       if (options?.showErrorToast) {
         setTimeout(() => {

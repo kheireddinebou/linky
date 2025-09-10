@@ -1,11 +1,12 @@
-import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
-import { LogOut, Zap } from "lucide-react";
+import { useAuthStore } from "@/store/auth";
+import { Zap } from "lucide-react";
 import Link from "next/link";
+import LogoutDialog from "./logout-dialog";
 import ThemeToggle from "./theme-toggle";
 
 const Header = () => {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,15 +31,7 @@ const Header = () => {
               <span className="text-sm text-muted-foreground max-sm:hidden">
                 Welcome, {user?.first_name || user?.username}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={logout}
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
+              <LogoutDialog />
             </>
           ) : (
             <>
