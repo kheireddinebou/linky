@@ -2,6 +2,7 @@ import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 import { LogOut, Zap } from "lucide-react";
 import Link from "next/link";
+import ThemeToggle from "./theme-toggle";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -22,6 +23,8 @@ const Header = () => {
         </Link>
 
         <nav className="flex items-center space-x-4">
+          <ThemeToggle />
+
           {isAuthenticated ? (
             <>
               <span className="text-sm text-muted-foreground max-sm:hidden">
