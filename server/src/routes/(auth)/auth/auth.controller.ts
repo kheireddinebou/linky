@@ -11,10 +11,10 @@ import {
 } from "../../../utils/auth";
 
 export const httpRegisterWithEmail = async (req: Request, res: Response) => {
-  const { email, password } = req.body || {};
+  const { email, password, first_name, last_name } = req.body || {};
 
   try {
-    // 1. Validate input
+    // 1. Validate required input
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
@@ -50,17 +50,22 @@ export const httpRegisterWithEmail = async (req: Request, res: Response) => {
     } while (exists);
 
     const hashed = await hashPassword(password);
+
+    // Insert user (first_name, last_name can be null if not provided)
     const result = await pool.query(
-      `INSERT INTO users (username, email, password, provider)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO users (username, email, password, provider, first_name, last_name)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [username, email, hashed, "local"]
+      [username, email, hashed, "local", first_name || null, last_name || null]
     );
 
     const user = result.rows[0];
+
+    // Generate token and set cookie
     const token = generateToken(user.id);
     setAuthCookie(res, token);
 
+    // Exclude password from response
     const { password: hashedPassword, ...others } = user;
 
     res.json({ user: others });

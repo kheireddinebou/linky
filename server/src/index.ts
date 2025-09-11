@@ -11,6 +11,7 @@ import urlRoutes from "./routes/url/url.routes.ts";
 
 import redirectsRoutes from "./routes/redirects/redirect.routes.ts";
 
+import userRoutes from "./routes/user/user.routes.ts";
 
 const app = express();
 
@@ -21,6 +22,7 @@ const PORT = process.env.PORT ?? 8000;
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
+    credentials: true,
   })
 );
 
@@ -31,8 +33,9 @@ app.use("/api/v1/oauth2", googleRoutes);
 
 app.use("/api/v1/url", urlRoutes);
 
-app.use("/", redirectsRoutes);
+app.use("/api/v1/user", userRoutes);
 
+app.use("/", redirectsRoutes);
 
 const startServer = async () => {
   await createTables();
