@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import pool from "../../config/db.js";
-import redis from "../../config/redis.js";
-import { cacheInRedis } from "../../utils/redist.js";
+import prisma from "../../config/prisma";
+import redis from "../../config/redis";
+import { cacheInRedis } from "../../utils/redist";
 
 export const httpRedirectToOriginalUrl = async (
   req: Request,
@@ -14,29 +14,34 @@ export const httpRedirectToOriginalUrl = async (
     let originalUrl = await redis.get(shortCode);
 
     if (!originalUrl) {
-      // Fallback: DB lookup
-      const result = await pool.query(
-        `SELECT original_url FROM urls WHERE short_code=$1`,
-        [shortCode]
-      );
+      // Fallback: DB lookup via Prisma
+      const record = await prisma.urls.findUnique({
+        where: { short_code: shortCode },
+        select: { original_url: true, short_code: true },
+      });
 
-      if (result.rows.length === 0) {
+      if (!record) {
         return res.status(404).json({ message: "URL not found" });
       }
 
-      originalUrl = result.rows[0].original_url;
+      originalUrl = record.original_url;
 
       // Cache for next time
-      cacheInRedis(shortCode, originalUrl!);
+      cacheInRedis(shortCode, originalUrl);
     }
 
-    // 🚀 Redirect immediately
-    res.redirect(originalUrl!);
+    // Redirect immediately
+    res.redirect(originalUrl);
 
-    // 🔄 Increment clicks in background
-    pool.query(`UPDATE urls SET clicks = clicks + 1 WHERE short_code=$1`, [
-      shortCode,
-    ]);
+    // Increment clicks in background (don't await to avoid delaying redirect)
+    prisma.urls
+      .update({
+        where: { short_code: shortCode },
+        data: { clicks: { increment: 1 } },
+      })
+      .catch(err => {
+        console.error("Failed to increment clicks", err);
+      });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }

@@ -221,9 +221,6 @@
   :root, :host {
     --font-sans: var(--font-body);
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --color-slate-100: #f1f5f9;
-    --color-slate-400: #90a1b9;
-    --color-slate-900: #0f172b;
     --color-black: #000;
     --color-white: #fff;
     --spacing: .25rem;
@@ -299,22 +296,6 @@
     --gradient-primary: var(--gradient-primary);
     --gradient-secondary: var(--gradient-secondary);
     --gradient-hero: var(--gradient-hero);
-  }
-
-  @supports (color: color(display-p3 0 0 0)) {
-    :root, :host {
-      --color-slate-100: color(display-p3 .947345 .959969 .97483);
-      --color-slate-400: color(display-p3 .577446 .629622 .716602);
-      --color-slate-900: color(display-p3 .0639692 .0891152 .163036);
-    }
-  }
-
-  @supports (color: lab(0% 0 0)) {
-    :root, :host {
-      --color-slate-100: lab(96.286% -.852436 -2.46847);
-      --color-slate-400: lab(65.5349% -2.25151 -14.5072);
-      --color-slate-900: lab(7.78673% 1.82345 -15.0537);
-    }
   }
 }
 
@@ -2950,12 +2931,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:text-slate-900:hover {
-      color: var(--color-slate-900);
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:underline:hover {
       -webkit-text-decoration-line: underline;
       text-decoration-line: underline;
@@ -3685,16 +3660,6 @@
 
   .dark\:border-destructive:where(.dark, .dark *) {
     border-color: var(--color-destructive);
-  }
-
-  .dark\:text-slate-400:where(.dark, .dark *) {
-    color: var(--color-slate-400);
-  }
-
-  @media (hover: hover) {
-    .dark\:hover\:text-slate-100:where(.dark, .dark *):hover {
-      color: var(--color-slate-100);
-    }
   }
 
   .\[\&_\.recharts-cartesian-axis-tick_text\]\:fill-muted-foreground .recharts-cartesian-axis-tick text {
