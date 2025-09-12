@@ -3,7 +3,6 @@ import cookieParser from "cookie-parser";
 
 import cors from "cors";
 import express from "express";
-import createTables from "./models/initDb.ts";
 import authRoutes from "./routes/(auth)/auth/auth.routes.js";
 import googleRoutes from "./routes/(auth)/google/google.routes.ts";
 
@@ -38,8 +37,6 @@ app.use("/api/v1/user", userRoutes);
 app.use("/", redirectsRoutes);
 
 const startServer = async () => {
-  await createTables();
-
   app.listen(PORT, () => {
     console.log(`app is listening on ${process.env.SERVER_URL}`);
   });

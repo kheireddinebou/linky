@@ -1,5 +1,6 @@
+// src/controllers/urls.ts
 import { Response } from "express";
-import pool from "../../config/db";
+import prisma from "../../config/prisma";
 import { AuthRequest } from "../../middlewares/auth";
 import { cacheInRedis } from "../../utils/redist";
 import redis from "../../config/redis";
@@ -7,7 +8,8 @@ import redis from "../../config/redis";
 export const httpCreateUrl = async (req: AuthRequest, res: Response) => {
   try {
     const { original_url, title } = req.body;
-    const userId = req.userId;
+    const userIdRaw = req.userId;
+    const userId = Number(userIdRaw);
 
     if (!original_url) {
       return res.status(400).json({ message: "original_url is required" });
@@ -21,15 +23,19 @@ export const httpCreateUrl = async (req: AuthRequest, res: Response) => {
 
     const shortCode = Math.random().toString(36).substring(2, 10);
 
+    // Cache in Redis immediately
     cacheInRedis(shortCode, original_url);
 
-    const result = await pool.query(
-      `INSERT INTO urls (user_id, original_url, short_code, title) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [userId, original_url, shortCode, title || null]
-    );
+    const created = await prisma.urls.create({
+      data: {
+        user_id: userId,
+        original_url,
+        short_code: shortCode,
+        title: title ?? null,
+      },
+    });
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(created);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -37,12 +43,12 @@ export const httpCreateUrl = async (req: AuthRequest, res: Response) => {
 
 export const httpGetUrls = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
-    const result = await pool.query(
-      `SELECT * FROM urls WHERE user_id=$1 ORDER BY created_at DESC`,
-      [userId]
-    );
-    res.status(200).json(result.rows);
+    const userId = Number(req.userId);
+    const urls = await prisma.urls.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: "desc" },
+    });
+    res.status(200).json(urls);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -50,80 +56,16 @@ export const httpGetUrls = async (req: AuthRequest, res: Response) => {
 
 export const httpGetUrl = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = Number(req.userId);
     const { id } = req.params;
+    const idNum = Number(id);
 
-    const result = await pool.query(
-      `SELECT * FROM urls WHERE id=$1 AND user_id=$2`,
-      [id, userId]
-    );
+    const url = await prisma.urls.findFirst({
+      where: { id: idNum, user_id: userId },
+    });
 
-    if (result.rows.length === 0) {
+    if (!url) {
       return res.status(404).json({ message: "Not found" });
-    }
-
-    res.status(200).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-export const httpUpdateUrl = async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.userId;
-    const { id } = req.params;
-    const { original_url, title } = req.body;
-
-    // Require at least one field
-    if (!original_url && !title) {
-      return res
-        .status(400)
-        .json({ message: "Provide at least one field to update" });
-    }
-
-    // Validate URL if provided
-    if (original_url) {
-      try {
-        new URL(original_url); // throws if invalid
-      } catch {
-        return res.status(400).json({ message: "Invalid URL format" });
-      }
-    }
-
-    // Build dynamic query
-    const fields: string[] = [];
-    const values: any[] = [];
-    let idx = 1;
-
-    if (original_url) {
-      fields.push(`original_url=$${idx++}`);
-      values.push(original_url);
-    }
-
-    if (title !== undefined) {
-      fields.push(`title=$${idx++}`);
-      values.push(title);
-    }
-
-    values.push(id, userId); // add where params
-
-    const result = await pool.query(
-      `UPDATE urls 
-       SET ${fields.join(", ")}, updated_at=NOW() 
-       WHERE id=$${idx++} AND user_id=$${idx} 
-       RETURNING *`,
-      values
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Not found" });
-    }
-
-    const url = result.rows[0];
-
-    // If original_url was updated → update Redis too
-    if (original_url) {
-      await redis.set(url.short_code, url.original_url);
     }
 
     res.status(200).json(url);
@@ -132,29 +74,83 @@ export const httpUpdateUrl = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Delete URL
-export const httpDeleteUrl = async (req: AuthRequest, res: Response) => {
+export const httpUpdateUrl = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = Number(req.userId);
     const { id } = req.params;
+    const idNum = Number(id);
+    const { original_url, title } = req.body;
 
-    if (!id) {
-      res.status(400).json({ message: "id is required" });
+    // Require at least one field
+    if (!original_url && title === undefined) {
+      return res
+        .status(400)
+        .json({ message: "Provide at least one field to update" });
     }
 
-    const result = await pool.query(
-      `DELETE FROM urls WHERE id=$1 AND user_id=$2 RETURNING *`,
-      [id, userId]
-    );
+    // Validate URL if provided
+    if (original_url) {
+      try {
+        new URL(original_url);
+      } catch {
+        return res.status(400).json({ message: "Invalid URL format" });
+      }
+    }
 
-    if (result.rows.length === 0) {
+    // Ensure the record belongs to the user
+    const existing = await prisma.urls.findFirst({
+      where: { id: idNum, user_id: userId },
+    });
+
+    if (!existing) {
       return res.status(404).json({ message: "Not found" });
     }
 
-    const url = result.rows[0];
+    // Build data object dynamically
+    const data: any = {};
+    if (original_url) data.original_url = original_url;
+    if (title !== undefined) data.title = title;
+    data.updated_at = new Date();
+
+    const updated = await prisma.urls.update({
+      where: { id: existing.id },
+      data,
+    });
+
+    // If original_url was updated → update Redis too
+    if (original_url) {
+      await redis.set(updated.short_code, updated.original_url);
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const httpDeleteUrl = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = Number(req.userId);
+    const { id } = req.params;
+    const idNum = Number(id);
+
+    if (!id) {
+      return res.status(400).json({ message: "id is required" });
+    }
+
+    // Ensure ownership and get record
+    const existing = await prisma.urls.findFirst({
+      where: { id: idNum, user_id: userId },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    await prisma.urls.delete({ where: { id: existing.id } });
 
     // Remove from Redis
-    await redis.del(url.short_code);
+    await redis.del(existing.short_code);
 
     res.status(200).json({ message: "Deleted successfully" });
   } catch (err) {
