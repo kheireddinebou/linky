@@ -4,13 +4,9 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
-    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "strict": true
   },
-  "ts-node": {
-    "esm": true
-  }
+  "include": ["src/**/*"]
 }
-

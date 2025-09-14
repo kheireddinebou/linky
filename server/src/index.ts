@@ -3,14 +3,14 @@ import cookieParser from "cookie-parser";
 
 import cors from "cors";
 import express from "express";
-import authRoutes from "./routes/(auth)/auth/auth.routes.js";
-import googleRoutes from "./routes/(auth)/google/google.routes.ts";
+import authRoutes from "./routes/(auth)/auth/auth.routes";
+import googleRoutes from "./routes/(auth)/google/google.routes";
 
-import urlRoutes from "./routes/url/url.routes.ts";
+import urlRoutes from "./routes/url/url.routes";
 
-import redirectsRoutes from "./routes/redirects/redirect.routes.ts";
+import redirectsRoutes from "./routes/redirects/redirect.routes";
 
-import userRoutes from "./routes/user/user.routes.ts";
+import userRoutes from "./routes/user/user.routes";
 
 const app = express();
 
