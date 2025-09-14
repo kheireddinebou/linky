@@ -2,6 +2,7 @@
 
 import { Button, ButtonProps } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 interface GoogleButtonProps extends ButtonProps {
   title?: string;
@@ -12,10 +13,12 @@ const GoogleButton = ({
   ...others
 }: GoogleButtonProps) => {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const currentURLOrigin = window.location.origin;
   const router = useRouter();
 
-  const googleURL = `${API_BASE_URL}/oauth2/google?redirectUrl=${currentURLOrigin}/oauth2/callback`;
+  const googleURL = useMemo(() => {
+    if (typeof window === "undefined") return "#"; // SSR-safe fallback
+    return `${API_BASE_URL}/oauth2/google?redirectUrl=${window.location.origin}/oauth2/callback`;
+  }, [API_BASE_URL]);
 
   const handleConnectWithGoogle = () => {
     router.push(googleURL);
