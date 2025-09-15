@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT ?? 8000;
 
+
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
