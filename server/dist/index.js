@@ -35,8 +35,7 @@ var setAuthCookie = (res, token) => {
     // JS can't access
     secure: process.env.NODE_ENV === "production",
     // only https in prod
-    sameSite: "strict",
-    // protect against CSRF
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1e3
     // 7 days
   });
