@@ -76,7 +76,7 @@ export const httpRegisterWithEmail = async (req: Request, res: Response) => {
 
     res.json({ user });
   } catch (err: any) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -120,6 +120,6 @@ export const httpLogin = async (req: Request, res: Response) => {
 
     res.json({ user: others });
   } catch (err: any) {
-    res.status(500).json(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
