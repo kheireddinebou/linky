@@ -16,7 +16,7 @@ import { queryClient } from "@/lib/queryClient";
 import { urlSchema } from "@/schema/url";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Edit } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ const UpdateURLDialog = ({ url }: URLListProps) => {
     handleSubmit,
     reset,
     formState: { errors, isDirty },
+    setValue,
   } = useForm({
     resolver: yupResolver(urlSchema),
     defaultValues: {
@@ -42,6 +43,11 @@ const UpdateURLDialog = ({ url }: URLListProps) => {
   const { mutate: mutateUpdate, isPending } = useMutation({
     mutationFn: handleUpdateUrl,
   });
+
+  useEffect(() => {
+    setValue("original_url", url.original_url);
+    setValue("title", url.title);
+  }, [url.original_url, url.title]);
 
   async function handleUpdateUrl(data: any) {
     await updateUrl(url.id?.toString(), data);
