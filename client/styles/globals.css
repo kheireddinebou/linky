@@ -2,7 +2,6 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-
 .dark {
   /* URL Wizardry Color Palette - Dark Mode First (store H S L components) */
   --background: 220 26% 5%;
@@ -341,8 +340,6 @@
   }
 }
 
-@media (max-width: 639px) {
-  .container {
-    @apply px-3;
-  }
+.container {
+  @apply px-3;
 }
