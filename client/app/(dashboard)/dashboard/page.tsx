@@ -3,18 +3,20 @@
 import { getUrls } from "@/api/url";
 import Header from "@/components/layout/header";
 import { Card } from "@/components/ui/card";
-import { useAuthStore } from "@/store/auth";
+import { useDashboardTour } from "@/hooks/useDashboardTour";
 import { useQuery } from "@/hooks/useQuery";
+import { useAuthStore } from "@/store/auth";
 import { motion } from "framer-motion";
 import { BarChart3, Link2, Users, Zap } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import StateCard, { State } from "./components/state-card";
+import StateCard from "./components/state-card";
 import URLForm from "./components/url-form";
 import URLList from "./components/url-list";
 
 const Dashboard = () => {
   const { user } = useAuthStore();
   const searchParams = useSearchParams();
+  useDashboardTour();
 
   // Get URL from navigation state if coming from home page
   const initialUrl = searchParams.get("urlToShorten") || "";
@@ -32,18 +34,21 @@ const Dashboard = () => {
       value: urls?.length.toString(),
       icon: Link2,
       description: "URLs shortened",
+      id: "total-links",
     },
     {
       title: "Total Clicks",
       value: totalClicks.toString(),
       icon: BarChart3,
       description: "Across all links",
+      id: "total-clicks",
     },
     {
       title: "Active Today",
       value: "0", // This would come from API in real app
       icon: Zap,
       description: "Links clicked today",
+      id: "active-today",
     },
     {
       title: "Engagement",
@@ -53,6 +58,7 @@ const Dashboard = () => {
           : "0",
       icon: Users,
       description: "Avg clicks per link",
+      id: "engagement",
     },
   ];
 
@@ -89,18 +95,20 @@ const Dashboard = () => {
           className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8"
         >
           {stats.map(state => (
-            <StateCard state={state} key={state.title} />
+            <div id={state.id} key={state.id}>
+              <StateCard state={state} />
+            </div>
           ))}
         </motion.div>
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* URL Form */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" id="shorten-url">
             <URLForm initialUrl={initialUrl} />
           </div>
 
           {/* URL List */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" id="your-urls">
             {isLoading ? (
               <Card className="p-8 text-center">
                 <div className="animate-pulse">

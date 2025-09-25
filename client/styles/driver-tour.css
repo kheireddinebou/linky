@@ -1,0 +1,18 @@
+/* popoverScope: the class we will pass via `popoverClass` */
+.driver-popover {
+  background-color: var(--color-popover);
+  color: var(--color-popover-foreground);
+}
+
+.driver-popover-description,
+.driver-popover-progress-text {
+  color: var(--color-muted-foreground);
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn {
+  background-color: var(--color-primary) !important;
+  color: var(--color-primary-foreground) !important;
+  border: none !important;
+  text-shadow: none !important;
+}
