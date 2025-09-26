@@ -16,7 +16,7 @@ import { loginSchema } from "@/schema/auth";
 import { useAuthStore } from "@/store/auth";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@/hooks/useMutation";
-import { Lock, Mail } from "lucide-react";
+import { Lock, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -50,25 +50,27 @@ const LoginForm = () => {
       <CardHeader className="text-center">
         <CardTitle>Sign In</CardTitle>
         <CardDescription>
-          Enter your credentials to access your dashboard
+          Enter your username or email to access your dashboard
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Identifier Field */}
         <div className="space-y-2">
-          <Label htmlFor="email" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Email
+          <Label htmlFor="identifier" className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Username or Email
           </Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            error={errors.email}
-            {...register("email")}
+            id="identifier"
+            type="text"
+            placeholder="Enter your username or email"
+            error={errors.identifier}
+            {...register("identifier")}
           />
         </div>
 
+        {/* Password Field */}
         <div className="space-y-2">
           <Label htmlFor="password" className="flex items-center gap-2">
             <Lock className="w-4 h-4" />
