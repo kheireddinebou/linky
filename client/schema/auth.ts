@@ -1,21 +1,19 @@
 import * as yup from "yup";
 
-const emailSchema = yup
-  .string()
-  .email("Invalid email")
-  .required("Email is required");
+const identifierSchema = yup.string().required("Username or Email is required");
+
 const passwordSchema = yup
   .string()
   .min(6, "Password must be at least 6 characters")
   .required("Password is required");
 
 export const loginSchema = yup.object({
-  email: emailSchema,
+  identifier: identifierSchema,
   password: passwordSchema,
 });
 
 export const registerSchema = yup.object({
-  email: emailSchema,
+  email: yup.string().email("Invalid email").required("Email is required"),
   password: passwordSchema,
   confirmPassword: yup
     .string()

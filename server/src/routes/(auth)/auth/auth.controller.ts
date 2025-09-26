@@ -81,15 +81,23 @@ export const httpRegisterWithEmail = async (req: Request, res: Response) => {
 };
 
 export const httpLogin = async (req: Request, res: Response) => {
-  const { email, password } = req.body || {};
+  const { identifier, password } = req.body || {};
+  // "identifier" can be either email or username
 
   try {
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!identifier || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username/Email and password are required" });
     }
 
-    const user = await prisma.users.findUnique({
-      where: { email },
+    const user = await prisma.users.findFirst({
+      where: {
+        OR: [
+          { email: identifier },
+          { username: identifier },
+        ],
+      },
       select: {
         id: true,
         email: true,
@@ -103,13 +111,15 @@ export const httpLogin = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(400).json({ error: "Email does not exist" });
+      return res
+        .status(400)
+        .json({ error: "User with this username or email does not exist" });
     }
 
     const isValidPassword = await comparePassword(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(400).json({ error: "Password is not correct !" });
+      return res.status(400).json({ error: "Password is not correct!" });
     }
 
     const token = generateToken(user.id);
