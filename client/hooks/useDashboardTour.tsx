@@ -1,10 +1,11 @@
 "use client";
 
 import { driver } from "driver.js";
-import "driver.js/dist/driver.css";
-import "../styles/driver-tour.css";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+
+import "driver.js/dist/driver.css";
+import "../styles/driver-tour.css";
 
 export function useDashboardTour() {
   const pathname = usePathname();
@@ -88,12 +89,6 @@ export function useDashboardTour() {
 
     // Only run on the main dashboard route (optional guard)
     if (!pathname?.includes("/dashboard")) return;
-
-    const isMobile =
-      typeof window !== "undefined" &&
-      /Mobi|Android/i.test(navigator.userAgent);
-
-    if (isMobile) return;
 
     setTimeout(() => {
       startTour();

@@ -5,7 +5,8 @@
 }
 
 .driver-popover-description,
-.driver-popover-progress-text {
+.driver-popover-progress-text,
+.driver-popover-close-btn {
   color: var(--color-muted-foreground);
 }
 
