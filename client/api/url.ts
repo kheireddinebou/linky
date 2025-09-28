@@ -33,3 +33,14 @@ export async function updateUrl(
 export async function deleteUrl(id: string): Promise<void> {
   await userRequest.delete(`/url/${id}`);
 }
+
+export async function fetchUrlTitleSuggestions(url: string): Promise<string[]> {
+  const res: AxiosResponse<any> = await userRequest.get(
+    "/url/title/suggestions",
+    {
+      params: { url },
+    }
+  );
+
+  return res.data?.suggestions;
+}
