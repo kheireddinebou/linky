@@ -1,9 +1,10 @@
 // src/controllers/urls.ts
 import { Response } from "express";
 import prisma from "../../config/prisma";
+import redis from "../../config/redis";
 import { AuthRequest } from "../../middlewares/auth";
 import { cacheInRedis } from "../../utils/redist";
-import redis from "../../config/redis";
+import { TitleSuggestionsService } from "../../utils/title-suggestions";
 
 export const httpCreateUrl = async (req: AuthRequest, res: Response) => {
   try {
@@ -155,5 +156,67 @@ export const httpDeleteUrl = async (req: AuthRequest, res: Response) => {
     res.status(200).json({ message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const httpGetTitleSuggestions = async (
+  req: {
+    query: { url: string };
+  },
+  res: Response
+) => {
+  try {
+    const { url } = req.query;
+
+    if (!url) {
+      return res.status(400).json({ message: "url is required" });
+    }
+
+    // Validate URL
+    try {
+      new URL(url); // throws if invalid
+    } catch {
+      return res.status(400).json({ message: "Invalid URL format" });
+    }
+
+    const urlString = url as string;
+    const cacheKey = TitleSuggestionsService.generateCacheKey(urlString);
+
+    // Check Redis cache first
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.status(200).json({
+        suggestions: JSON.parse(cached),
+        source: "cache",
+      });
+    }
+
+    // Extract title suggestions
+    const suggestions = await TitleSuggestionsService.extractTitleSuggestions(
+      urlString
+    );
+
+    // Cache results
+    await redis.setex(
+      cacheKey,
+      TitleSuggestionsService.getCacheTTL(),
+      JSON.stringify(suggestions)
+    );
+
+    res.status(200).json({
+      suggestions,
+      source: "webpage",
+    });
+  } catch (error) {
+    // Provide fallback suggestions
+    const fallbackSuggestions = TitleSuggestionsService.generateFallbackTitles(
+      (req.query.url as string) || ""
+    );
+
+    res.status(200).json({
+      suggestions: fallbackSuggestions,
+      source: "fallback",
+      note: "Generated fallback suggestions due to error",
+    });
   }
 };
