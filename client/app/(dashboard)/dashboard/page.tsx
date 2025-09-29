@@ -3,8 +3,8 @@
 import { getUrls } from "@/api/url";
 import Header from "@/components/layout/header";
 import { Card } from "@/components/ui/card";
-import { useDashboardTour } from "@/hooks/useDashboardTour";
-import { useQuery } from "@/hooks/useQuery";
+import { useDashboardTour } from "@/hooks/use-dashboard-tour";
+import { useQuery } from "@/hooks/use-query";
 import { useAuthStore } from "@/store/auth";
 import { motion } from "framer-motion";
 import { BarChart3, Link2, Users, Zap } from "lucide-react";

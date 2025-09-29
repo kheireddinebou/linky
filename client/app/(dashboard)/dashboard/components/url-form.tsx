@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMutation } from "@/hooks/useMutation";
-import { useQuery } from "@/hooks/useQuery";
+import { useMutation } from "@/hooks/use-mutation";
+import { useQuery } from "@/hooks/use-query";
 import { queryClient } from "@/lib/queryClient";
 import { urlSchema } from "@/schema/url";
 import { yupResolver } from "@hookform/resolvers/yup";

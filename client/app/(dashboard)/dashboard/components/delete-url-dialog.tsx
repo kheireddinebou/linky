@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useMutation } from "@/hooks/useMutation";
+import { useMutation } from "@/hooks/use-mutation";
 import { queryClient } from "@/lib/queryClient";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";

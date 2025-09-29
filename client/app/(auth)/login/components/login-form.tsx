@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/schema/auth";
 import { useAuthStore } from "@/store/auth";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation } from "@/hooks/useMutation";
+import { useMutation } from "@/hooks/use-mutation";
 import { Lock, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
