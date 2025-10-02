@@ -1,0 +1,11 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n next,express -c cyan,green \"pnpm --filter linky-client dev\" \"pnpm --filter linky-server dev\"",
+    "build": "concurrently -n next,express -c cyan,green \"pnpm --filter linky-client build\" \"pnpm --filter linky-server build\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
