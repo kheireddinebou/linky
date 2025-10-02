@@ -9,8 +9,8 @@ import { useAuthStore } from "@/store/auth";
 import { motion } from "framer-motion";
 import { BarChart3, Link2, Users, Zap } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import AddUrlCard from "./components/add-url-card";
 import StateCard from "./components/state-card";
-import URLForm from "./components/url-form";
 import URLList from "./components/url-list";
 
 const Dashboard = () => {
@@ -104,7 +104,7 @@ const Dashboard = () => {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* URL Form */}
           <div className="lg:col-span-1" id="shorten-url">
-            <URLForm initialUrl={initialUrl} />
+            <AddUrlCard initialUrl={initialUrl} />
           </div>
 
           {/* URL List */}
